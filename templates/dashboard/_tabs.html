@@ -1,0 +1,6 @@
+<div class="dash-tabs">
+  <a class="{% if tab == 'overview' %}active{% endif %}" href="{% url 'dashboard' %}">📊 Overview</a>
+  <a class="{% if tab == 'products' %}active{% endif %}" href="{% url 'manage_products' %}">🛍 Products</a>
+  <a class="{% if tab == 'orders' %}active{% endif %}" href="{% url 'manage_orders' %}">📦 Orders</a>
+  <a href="/admin/" target="_blank" rel="noopener">🔧 Django admin ↗</a>
+</div>

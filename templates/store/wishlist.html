@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Wishlist{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="section-head"><h2>♥ My wishlist</h2></div>
+  {% if products %}
+    <div class="grid">{% for p in products %}{% include "store/_product_card.html" %}{% endfor %}</div>
+  {% else %}
+    <div class="empty card">
+      <div class="empty-icon">💝</div>
+      <h3>Wishlist empty</h3>
+      <p class="muted">Pidichcha products-a ♥ click panni save pannunga.</p>
+      <a class="btn btn-primary" href="{% url 'shop' %}">Browse products</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

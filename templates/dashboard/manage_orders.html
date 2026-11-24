@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Manage orders{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="section-head"><h2>⚙ Admin dashboard</h2></div>
+  {% include "dashboard/_tabs.html" %}
+
+  <form class="toolbar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Order ID / customer…">
+    <select name="status" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for key, label in statuses %}<option value="{{ key }}" {% if status == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-dark btn-sm" type="submit">Filter</button>
+  </form>
+
+  <div class="card table-wrap">
+    <table class="table">
+      <tr><th>Order</th><th>Customer</th><th>City</th><th>Total</th><th>Date</th><th>Update status</th></tr>
+      {% for o in page_obj %}
+      <tr>
+        <td><a href="{% url 'order_detail' o.pk %}"><b>{{ o.code }}</b></a></td>
+        <td>{{ o.full_name }}<small class="muted">@{{ o.user.username }}</small></td>
+        <td>{{ o.city }}</td>
+        <td>{{ o.total|inr }}</td>
+        <td>{{ o.created|date:"d M, h:i A" }}</td>
+        <td>
+          {% if o.status == "cancelled" %}<span class="status status-cancelled">Cancelled</span>
+          {% else %}
+          <form method="post" action="{% url 'update_order_status' o.pk %}" class="status-form">{% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <select name="status" class="status-select status-{{ o.status }}" onchange="this.form.submit()">
+              {% for key, label in statuses %}<option value="{{ key }}" {% if o.status == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="muted center">No orders found</td></tr>{% endfor %}
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination">
+    {% if page_obj.has_previous %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">← Prev</a>{% endif %}
+    <a class="active">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</a>
+    {% if page_obj.has_next %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next →</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

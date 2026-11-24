@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}My orders{% endblock %}
+
+{% block content %}
+<div class="container section narrow">
+  <div class="section-head"><h2>📦 My orders</h2></div>
+  {% for o in orders %}
+  <a class="card order-card" href="{% url 'order_detail' o.pk %}">
+    <div class="order-top">
+      <div><b>{{ o.code }}</b><small class="muted">{{ o.created|date:"d M Y, h:i A" }}</small></div>
+      <span class="status status-{{ o.status }}">{{ o.get_status_display }}</span>
+    </div>
+    <div class="order-items">
+      {% for i in o.items.all|slice:":3" %}<span>{{ i.name }} × {{ i.quantity }}</span>{% endfor %}
+      {% if o.items.all|length > 3 %}<span class="muted">+{{ o.items.all|length|add:"-3" }} more</span>{% endif %}
+    </div>
+    <div class="order-bottom"><span class="muted">{{ o.get_payment_method_display }}</span><b>{{ o.total|inr }}</b></div>
+  </a>
+  {% empty %}
+  <div class="empty card">
+    <div class="empty-icon">📦</div>
+    <h3>Innum orders illa</h3>
+    <p class="muted">Unga first order place pannunga!</p>
+    <a class="btn btn-primary" href="{% url 'shop' %}">Start shopping</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

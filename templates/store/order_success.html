@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Order placed{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="card success">
+    <div class="tick"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-17"/></svg></div>
+    <h1>Order placed! 🎉</h1>
+    <p class="muted">Nandri, {{ order.full_name }}! Unga order confirm aayiduchu.</p>
+    <div class="order-id">Order ID <b>{{ order.code }}</b></div>
+    <div class="success-grid">
+      <div><small>Total paid</small><b>{{ order.total|inr }}</b></div>
+      <div><small>Payment</small><b>{{ order.get_payment_method_display }}</b></div>
+      <div><small>Deliver to</small><b>{{ order.city }} – {{ order.pincode }}</b></div>
+    </div>
+    <div class="hero-cta center">
+      <a class="btn btn-primary btn-lg" href="{% url 'order_detail' order.pk %}">Track order</a>
+      <a class="btn btn-ghost btn-lg" href="{% url 'shop' %}">Continue shopping</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

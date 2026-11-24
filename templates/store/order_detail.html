@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Order {{ order.code }}{% endblock %}
+
+{% block content %}
+<div class="container section narrow">
+  <div class="section-head">
+    <h2>Order {{ order.code }} <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></h2>
+    <a href="{% if user.is_staff and order.user_id != user.id %}{% url 'manage_orders' %}{% else %}{% url 'my_orders' %}{% endif %}">← Back</a>
+  </div>
+
+  <div class="card">
+    {% if order.status == "cancelled" %}
+      <div class="cancelled-banner">❌ This order was cancelled. Stock-ku restore aayiduchu.</div>
+    {% else %}
+      <div class="timeline">
+        {% for s in steps %}
+        <div class="step {% if s.done %}done{% endif %} {% if s.current %}current{% endif %}">
+          <div class="dot">{{ s.icon }}</div><span>{{ s.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>Items</h3>
+      {% for i in order.items.all %}
+      <div class="mini-row">
+        <div class="thumb mini">{% if i.product %}{% include "store/_thumb.html" with p=i.product %}{% else %}<div class="ph tone0"><span>📦</span></div>{% endif %}</div>
+        <div><b>{{ i.name }}</b><small class="muted">{{ i.price|inr }} × {{ i.quantity }}</small></div>
+        <span>{{ i.line_total|inr }}</span>
+      </div>
+      {% endfor %}
+      <dl class="totals">
+        <div><dt>Subtotal</dt><dd>{{ order.subtotal|inr }}</dd></div>
+        {% if order.discount %}<div class="green"><dt>Discount {% if order.coupon_code %}({{ order.coupon_code }}){% endif %}</dt><dd>− {{ order.discount|inr }}</dd></div>{% endif %}
+        <div><dt>Delivery</dt><dd>{% if order.shipping %}{{ order.shipping|inr }}{% else %}FREE{% endif %}</dd></div>
+        <div class="grand"><dt>Total</dt><dd>{{ order.total|inr }}</dd></div>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h3>Delivery details</h3>
+      <p><b>{{ order.full_name }}</b><br>{{ order.address|linebreaksbr }}<br>{{ order.city }} – {{ order.pincode }}<br>📞 {{ order.phone }}</p>
+      <h3>Payment</h3>
+      <p>{{ order.get_payment_method_display }}</p>
+      <h3>Placed on</h3>
+      <p>{{ order.created|date:"d M Y, h:i A" }}</p>
+      {% if order.can_cancel and order.user_id == user.id %}
+      <form method="post" action="{% url 'cancel_order' order.pk %}" data-confirm="Order-a cancel pannanuma?">
+        {% csrf_token %}<button class="btn btn-danger btn-block" type="submit">Cancel order</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

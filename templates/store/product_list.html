@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{% if q %}Search: {{ q }}{% else %}Shop{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="section-head">
+    <h2>{% if q %}Results for “{{ q }}”{% else %}All products{% endif %} <small class="muted">({{ result_count }})</small></h2>
+    <button class="btn btn-ghost btn-sm filter-toggle" type="button" id="filter-toggle">⚙ Filters</button>
+  </div>
+
+  <div class="shop-layout">
+    <aside class="filters card" id="filters">
+      <form method="get" id="filter-form">
+        {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+        <h4>Category</h4>
+        <div class="chip-list">
+          <a class="chip {% if not active_cat %}active{% endif %}" href="?{% if q %}q={{ q }}{% endif %}">All</a>
+          {% for c in nav_categories %}
+            <a class="chip {% if active_cat == c.slug %}active{% endif %}" href="?category={{ c.slug }}{% if q %}&q={{ q }}{% endif %}">{{ c.icon }} {{ c.name }}</a>
+          {% endfor %}
+        </div>
+        {% if active_cat %}<input type="hidden" name="category" value="{{ active_cat }}">{% endif %}
+
+        <h4>Price (₹)</h4>
+        <div class="range">
+          <input type="number" name="min_price" min="0" placeholder="Min" value="{{ request.GET.min_price }}">
+          <span>–</span>
+          <input type="number" name="max_price" min="0" placeholder="Max" value="{{ request.GET.max_price }}">
+        </div>
+
+        <h4>Sort by</h4>
+        <select name="sort">
+          <option value="new" {% if sort == 'new' %}selected{% endif %}>Newest</option>
+          <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low → High</option>
+          <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High → Low</option>
+          <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top rated</option>
+          <option value="name" {% if sort == 'name' %}selected{% endif %}>Name A–Z</option>
+        </select>
+
+        <label class="check"><input type="checkbox" name="in_stock" value="1" {% if request.GET.in_stock %}checked{% endif %}> In stock only</label>
+        <label class="check"><input type="checkbox" name="deals" value="1" {% if request.GET.deals %}checked{% endif %}> On sale only</label>
+
+        <button class="btn btn-primary btn-block" type="submit">Apply filters</button>
+        <a class="btn btn-ghost btn-block mt-sm" href="{% url 'shop' %}">Reset</a>
+      </form>
+    </aside>
+
+    <div>
+      {% if page_obj %}
+        <div class="grid grid-3">{% for p in page_obj %}{% include "store/_product_card.html" %}{% endfor %}</div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="pagination">
+          {% if page_obj.has_previous %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">← Prev</a>{% endif %}
+          {% for n in page_obj.paginator.page_range %}
+            <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ n }}" class="{% if n == page_obj.number %}active{% endif %}">{{ n }}</a>
+          {% endfor %}
+          {% if page_obj.has_next %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next →</a>{% endif %}
+        </nav>
+        {% endif %}
+      {% else %}
+        <div class="empty card">
+          <div class="empty-icon">🔍</div>
+          <h3>Edhuvum kidaikkala</h3>
+          <p class="muted">Vera keyword try pannunga illa filters reset pannunga.</p>
+          <a class="btn btn-primary" href="{% url 'shop' %}">Show all products</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

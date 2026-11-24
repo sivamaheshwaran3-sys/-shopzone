@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-text">
+      <span class="pill">🔥 Festive sale is live</span>
+      <h1>Shop smarter with <span class="grad">ShopZone</span></h1>
+      <p>Electronics, fashion, home essentials and more — handpicked products, unbeatable deals and doorstep delivery.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="{% url 'shop' %}">Shop now →</a>
+        <a class="btn btn-ghost btn-lg" href="#deals">View deals</a>
+      </div>
+      <div class="hero-stats">
+        <div><b>{{ total_products }}+</b><span>Products</span></div>
+        <div><b>4.8★</b><span>Avg rating</span></div>
+        <div><b>24h</b><span>Fast dispatch</span></div>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="float f1">🎧</div>
+      <div class="float f2">👟</div>
+      <div class="float f3">⌚</div>
+      <div class="float f4">🎒</div>
+      <div class="orb"></div>
+    </div>
+  </div>
+</section>
+
+<section class="container features">
+  <div class="feature"><span>🚚</span><div><b>Free delivery</b><small>On orders above ₹999</small></div></div>
+  <div class="feature"><span>🔒</span><div><b>Secure checkout</b><small>Your data stays safe</small></div></div>
+  <div class="feature"><span>↩️</span><div><b>Easy cancel</b><small>Before it ships</small></div></div>
+  <div class="feature"><span>🎁</span><div><b>Coupons</b><small>Save up to 20%</small></div></div>
+</section>
+
+<section class="container section">
+  <div class="section-head"><h2>Shop by category</h2></div>
+  <div class="cat-grid">
+    {% for c in nav_categories %}
+    <a class="cat-tile reveal" href="{% url 'shop' %}?category={{ c.slug }}">
+      <span class="cat-icon">{{ c.icon }}</span>
+      <b>{{ c.name }}</b>
+      <small>{{ c.n }} item{{ c.n|pluralize }}</small>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+{% if featured %}
+<section class="container section">
+  <div class="section-head"><h2>⭐ Featured products</h2><a href="{% url 'shop' %}">View all →</a></div>
+  <div class="grid">{% for p in featured %}{% include "store/_product_card.html" %}{% endfor %}</div>
+</section>
+{% endif %}
+
+<section class="container section" id="deals">
+  <div class="promo">
+    <div>
+      <span class="pill light">Limited time</span>
+      <h2>Extra 10% off your first order</h2>
+      <p>Apply coupon <b class="code">WELCOME10</b> in your cart. Spend ₹2000+ and use <b class="code">SAVE20</b> for 20% off!</p>
+    </div>
+    <a class="btn btn-white btn-lg" href="{% url 'shop' %}?deals=1">Grab deals →</a>
+  </div>
+  {% if deals %}<div class="grid mt">{% for p in deals %}{% include "store/_product_card.html" %}{% endfor %}</div>{% endif %}
+</section>
+
+<section class="container section">
+  <div class="section-head"><h2>🆕 New arrivals</h2><a href="{% url 'shop' %}?sort=new">See more →</a></div>
+  <div class="grid">{% for p in latest %}{% include "store/_product_card.html" %}{% endfor %}</div>
+</section>
+{% endblock %}

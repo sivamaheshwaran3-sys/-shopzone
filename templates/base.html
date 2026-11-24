@@ -1,0 +1,91 @@
+{% load static store_extras %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="{{ csrf_token }}">
+  <title>{% block title %}Home{% endblock %} · ShopZone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+
+<div class="topbar">🚚 Free delivery on orders above ₹999 &nbsp;•&nbsp; Use code <b>WELCOME10</b> for 10% off</div>
+
+<header class="header">
+  <div class="container header-row">
+    <a href="{% url 'home' %}" class="logo"><span class="logo-mark">S</span>Shop<b>Zone</b></a>
+
+    <form class="search" action="{% url 'shop' %}" method="get" autocomplete="off">
+      <input type="search" name="q" id="search-input" placeholder="Search products, categories…" value="{{ q|default:'' }}">
+      <button type="submit" aria-label="Search">🔍</button>
+      <div class="suggest" id="suggest" hidden></div>
+    </form>
+
+    <nav class="nav" id="nav">
+      <a href="{% url 'shop' %}">Shop</a>
+      <a href="{% url 'shop' %}?deals=1">Deals</a>
+      {% if user.is_staff %}<a href="{% url 'dashboard' %}" class="nav-admin">⚙ Dashboard</a>{% endif %}
+    </nav>
+
+    <div class="actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Dark / Light">🌙</button>
+      <a class="icon-btn" href="{% url 'wishlist' %}" aria-label="Wishlist" title="Wishlist">♥</a>
+      <a class="icon-btn" href="{% url 'cart' %}" aria-label="Cart" title="Cart">🛒<span class="count" id="cart-count" {% if not cart_count %}data-zero{% endif %}>{{ cart_count }}</span></a>
+      {% if user.is_authenticated %}
+        <div class="user-menu">
+          <button class="user-btn" type="button" id="user-btn">{{ user.first_name|default:user.username|slice:":1"|upper }}</button>
+          <div class="dropdown" id="user-dropdown" hidden>
+            <div class="dd-head">Hi, {{ user.first_name|default:user.username }} 👋</div>
+            <a href="{% url 'my_orders' %}">📦 My orders</a>
+            <a href="{% url 'wishlist' %}">♥ Wishlist</a>
+            {% if user.is_staff %}<a href="{% url 'dashboard' %}">⚙ Dashboard</a>{% endif %}
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">🚪 Logout</button></form>
+          </div>
+        </div>
+      {% else %}
+        <a class="btn btn-primary btn-sm" href="{% url 'login' %}">Login</a>
+      {% endif %}
+      <button class="icon-btn burger" id="burger" type="button" aria-label="Menu">☰</button>
+    </div>
+  </div>
+</header>
+
+<div class="toasts" id="toasts">
+  {% for m in messages %}<div class="toast {{ m.tags }}">{{ m }}</div>{% endfor %}
+</div>
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <a href="{% url 'home' %}" class="logo"><span class="logo-mark">S</span>Shop<b>Zone</b></a>
+      <p class="muted">Your one-stop shop for quality products at honest prices. Built with Django, MySQL, HTML, CSS &amp; JS.</p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      {% for c in nav_categories %}<a href="{% url 'shop' %}?category={{ c.slug }}">{{ c.icon }} {{ c.name }}</a>{% endfor %}
+    </div>
+    <div>
+      <h4>Account</h4>
+      <a href="{% url 'my_orders' %}">My orders</a>
+      <a href="{% url 'wishlist' %}">Wishlist</a>
+      <a href="{% url 'cart' %}">Cart</a>
+    </div>
+    <div>
+      <h4>Why ShopZone?</h4>
+      <p class="muted">✔ Easy cancellation<br>✔ Secure checkout<br>✔ Live order tracking<br>✔ 24/7 support</p>
+    </div>
+  </div>
+  <div class="footer-bottom">© {% now "Y" %} ShopZone. Made with ❤️</div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>↑</button>
+<script src="{% static 'js/main.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="auth-card card">
+    <div class="auth-emoji">🎉</div>
+    <h2>Create account</h2>
+    <p class="muted">Free-ah join pannunga, offers miss pannaadheenga</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      {% for field in form %}
+        <div class="field"><label>{{ field.label }}</label>{{ field }}{{ field.errors }}</div>
+      {% endfor %}
+      <button class="btn btn-primary btn-block btn-lg" type="submit">Sign up</button>
+    </form>
+    <p class="muted center">Already account irukka? <a href="{% url 'login' %}">Login</a></p>
+  </div>
+</div>
+{% endblock %}

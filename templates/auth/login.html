@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="auth-card card">
+    <div class="auth-emoji">👋</div>
+    <h2>Welcome back</h2>
+    <p class="muted">Login panni shopping continue pannunga</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      {% if form.errors %}<div class="alert">Username / password thappu. Marubadiyum try pannunga.</div>{% endif %}
+      <div class="field"><label>Username</label><input type="text" name="username" autofocus required placeholder="Username"></div>
+      <div class="field"><label>Password</label><input type="password" name="password" required placeholder="Password"></div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit">Login</button>
+    </form>
+    <p class="muted center">Account illaya? <a href="{% url 'register' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Sign up</a></p>
+    <div class="demo-box">
+      <b>Demo accounts</b>
+      <span>👤 User: <code>demo</code> / <code>demo123</code></span>
+      <span>🛠 Admin: <code>admin</code> / <code>admin123</code></span>
+    </div>
+  </div>
+</div>
+{% endblock %}

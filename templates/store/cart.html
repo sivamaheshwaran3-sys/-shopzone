@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="section-head"><h2>🛒 Your cart</h2></div>
+
+  {% if items %}
+  <div class="cart-layout">
+    <div class="card cart-items">
+      {% for i in items %}
+      <div class="cart-row">
+        <a class="thumb mini" href="{{ i.product.get_absolute_url }}">{% include "store/_thumb.html" with p=i.product %}</a>
+        <div class="cart-info">
+          <a href="{{ i.product.get_absolute_url }}"><b>{{ i.product.name }}</b></a>
+          <small class="muted">{{ i.product.category.name }} · {{ i.product.price|inr }} each</small>
+          {% if i.product.low_stock %}<small class="warn">Only {{ i.product.stock }} left</small>{% endif %}
+        </div>
+        <form method="post" action="{% url 'cart_update' i.product.id %}" class="qty-form">
+          {% csrf_token %}
+          <div class="qty" data-max="{{ i.product.stock }}" data-autosubmit>
+            <button type="button" data-step="-1">−</button>
+            <input type="number" name="quantity" value="{{ i.quantity }}" min="1" max="{{ i.product.stock }}">
+            <button type="button" data-step="1">+</button>
+          </div>
+        </form>
+        <div class="line-total">{{ i.line_total|inr }}</div>
+        <form method="post" action="{% url 'cart_remove' i.product.id %}">{% csrf_token %}
+          <button class="icon-btn danger" type="submit" aria-label="Remove" title="Remove">🗑</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+    <aside class="card summary-card">
+      <h3>Order summary</h3>
+
+      {% if t.free_gap > 0 %}
+        <div class="ship-progress"><div class="ship-bar"><i style="width:{{ t.free_pct }}%"></i></div>
+          <small>Add <b>{{ t.free_gap|inr }}</b> more for <b>FREE delivery</b> 🚚</small></div>
+      {% else %}
+        <div class="ship-progress done"><small>🎉 You've unlocked <b>FREE delivery</b>!</small></div>
+      {% endif %}
+
+      {% if t.coupon %}
+        <div class="coupon-applied">🎟 <b>{{ t.coupon.code }}</b> applied ({{ t.coupon.percent }}% off)
+          <form method="post" action="{% url 'remove_coupon' %}">{% csrf_token %}<button type="submit" class="link">Remove</button></form></div>
+      {% else %}
+        <form method="post" action="{% url 'apply_coupon' %}" class="coupon-form">{% csrf_token %}
+          <input type="text" name="code" placeholder="Coupon code" required>
+          <button class="btn btn-dark btn-sm" type="submit">Apply</button>
+        </form>
+        {% if t.coupon_msg %}<small class="warn">{{ t.coupon_msg }}</small>{% endif %}
+        <small class="muted">Try: WELCOME10 · SAVE20 · FESTIVE15</small>
+      {% endif %}
+
+      <dl class="totals">
+        <div><dt>Subtotal</dt><dd>{{ t.subtotal|inr }}</dd></div>
+        {% if t.discount %}<div class="green"><dt>Discount</dt><dd>− {{ t.discount|inr }}</dd></div>{% endif %}
+        <div><dt>Delivery</dt><dd>{% if t.shipping %}{{ t.shipping|inr }}{% else %}<span class="green">FREE</span>{% endif %}</dd></div>
+        <div class="grand"><dt>Total</dt><dd>{{ t.total|inr }}</dd></div>
+      </dl>
+      <a class="btn btn-primary btn-block btn-lg" href="{% url 'checkout' %}">Proceed to checkout →</a>
+      <a class="btn btn-ghost btn-block mt-sm" href="{% url 'shop' %}">Continue shopping</a>
+    </aside>
+  </div>
+  {% else %}
+  <div class="empty card">
+    <div class="empty-icon">🛒</div>
+    <h3>Cart empty-ah irukku</h3>
+    <p class="muted">Pudhu products explore pannunga!</p>
+    <a class="btn btn-primary" href="{% url 'shop' %}">Start shopping</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

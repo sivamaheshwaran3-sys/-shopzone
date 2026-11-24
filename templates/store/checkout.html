@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="steps-bar"><span class="done">1 Cart</span><i></i><span class="active">2 Address &amp; payment</span><i></i><span>3 Done</span></div>
+
+  <div class="cart-layout">
+    <form method="post" class="card form-card" novalidate>
+      {% csrf_token %}
+      <h3>📍 Delivery address</h3>
+      {{ form.non_field_errors }}
+      <div class="form-grid">
+        <div class="field span2">{{ form.full_name }}{{ form.full_name.errors }}</div>
+        <div class="field">{{ form.phone }}{{ form.phone.errors }}</div>
+        <div class="field">{{ form.pincode }}{{ form.pincode.errors }}</div>
+        <div class="field span2">{{ form.address }}{{ form.address.errors }}</div>
+        <div class="field span2">{{ form.city }}{{ form.city.errors }}</div>
+      </div>
+
+      <h3>💳 Payment method</h3>
+      <div class="pay-options">
+        {% for radio in form.payment_method %}
+          <label class="pay-option">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
+        {% endfor %}
+      </div>
+      <small class="muted">UPI / Card options demo mattum — real payment gateway connect pannala.</small>
+
+      <button class="btn btn-primary btn-lg btn-block mt" type="submit">Place order · {{ t.total|inr }}</button>
+    </form>
+
+    <aside class="card summary-card">
+      <h3>Your items</h3>
+      <div class="mini-list">
+        {% for i in items %}
+        <div class="mini-row">
+          <div class="thumb mini">{% include "store/_thumb.html" with p=i.product %}</div>
+          <div><b>{{ i.product.name }}</b><small class="muted">Qty {{ i.quantity }}</small></div>
+          <span>{{ i.line_total|inr }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <dl class="totals">
+        <div><dt>Subtotal</dt><dd>{{ t.subtotal|inr }}</dd></div>
+        {% if t.discount %}<div class="green"><dt>Discount ({{ t.coupon.code }})</dt><dd>− {{ t.discount|inr }}</dd></div>{% endif %}
+        <div><dt>Delivery</dt><dd>{% if t.shipping %}{{ t.shipping|inr }}{% else %}<span class="green">FREE</span>{% endif %}</dd></div>
+        <div class="grand"><dt>Total</dt><dd>{{ t.total|inr }}</dd></div>
+      </dl>
+      <a class="btn btn-ghost btn-block" href="{% url 'cart' %}">← Edit cart</a>
+    </aside>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Manage products{% endblock %}
+
+{% block content %}
+<div class="container section">
+  <div class="section-head"><h2>⚙ Admin dashboard</h2><a class="btn btn-primary btn-sm" href="{% url 'product_add' %}">+ Add product</a></div>
+  {% include "dashboard/_tabs.html" %}
+
+  <form class="toolbar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search products…">
+    <button class="btn btn-dark btn-sm" type="submit">Search</button>
+  </form>
+
+  <div class="card table-wrap">
+    <table class="table">
+      <tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr>
+      {% for p in page_obj %}
+      <tr>
+        <td><div class="cell-prod"><div class="thumb mini">{% include "store/_thumb.html" %}</div><div><b>{{ p.name }}</b>{% if p.is_featured %}<small class="featured">⭐ Featured</small>{% endif %}</div></div></td>
+        <td>{{ p.category.name }}</td>
+        <td>{{ p.price|inr }}{% if p.old_price %}<small class="muted"> <s>{{ p.old_price|inr }}</s></small>{% endif %}</td>
+        <td><span class="stock-pill {% if p.stock == 0 %}zero{% elif p.stock <= 5 %}low{% endif %}">{{ p.stock }}</span></td>
+        <td>{% if p.active %}<span class="status status-delivered">Active</span>{% else %}<span class="status status-cancelled">Hidden</span>{% endif %}</td>
+        <td class="row-actions">
+          <a class="btn btn-ghost btn-sm" href="{% url 'product_edit' p.pk %}">Edit</a>
+          <form method="post" action="{% url 'product_delete' p.pk %}" data-confirm="'{{ p.name|escapejs }}' delete pannanuma?">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="muted center">No products found</td></tr>{% endfor %}
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination">
+    {% if page_obj.has_previous %}<a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.previous_page_number }}">← Prev</a>{% endif %}
+    <a class="active">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</a>
+    {% if page_obj.has_next %}<a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.next_page_number }}">Next →</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}
